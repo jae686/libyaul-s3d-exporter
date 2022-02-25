@@ -1,8 +1,13 @@
 import bpy
 
-# TODO : Adicionar opção para aplicar transformações ao modelo
-# Evitar dar cabo do modelo -> transformações apenas devem ser aplicadas ao modelo que deve ser escrito
 
+# Exporter to be used with the examples on https://github.com/ijacquez/libyaul-examples/tree/develop/vdp1-sega3d
+# It is a work im progress.
+# 
+#
+#
+# Author : Jaerder Sousa <jaerder@videmogroup.org>
+#
 
 def write_some_data(context, filepath, bApplyTranforms):
     output=open(filepath,"w")
@@ -18,9 +23,6 @@ def write_some_data(context, filepath, bApplyTranforms):
         obj.matrix_world.identity()
 
 
-    #output.write("// nr vertices %d \n" %vertice_indices_len)
-    
-    #adicionar header
     
     output.write("#include <sega3d.h> \n")
 
@@ -29,7 +31,6 @@ def write_some_data(context, filepath, bApplyTranforms):
     
     output.write("static POINT point_%s[] = {\n" % mesh.name)
     for k,v in enumerate(mesh.vertices):
-       # vertice_list.append(v)
         output.write("POStoFIXED(%.2f,%.2f,%.2f) \t \t /* %d */" % (v.co[0], v.co[1], v.co[2], k))
         if(k+1 < len(mesh.vertices)):
             output.write(",\n")

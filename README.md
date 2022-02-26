@@ -7,6 +7,7 @@ The exporter is still incomplete.
 Current features : Geometry export. Requires that the polygons are quads before exporting.
 
 What is missing :
-	Polygon colors
-	Polygon attibutes
-	In case os triangles, to duplicate the last vertex according to SGL documentation
+
+- Polygon colors
+- Polygon attibutes
+- In case the polygon is a quad instead of a triangle, to duplicate the last vertex according to SGL documentation

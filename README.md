@@ -9,3 +9,4 @@ Current features : Geometry export. Requires that the polygons are quads before 
 What is missing :
 	Polygon colors
 	Polygon attibutes
+	In case os triangles, to duplicate the last vertex according to SGL documentation

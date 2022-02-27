@@ -28,6 +28,7 @@ def write_some_data(context, filepath, bApplyTranforms):
 
 
     mesh = context.active_object.data
+    objContext = context.object
     
     output.write("static POINT point_%s[] = {\n" % mesh.name)
     for k,v in enumerate(mesh.vertices):
@@ -51,7 +52,7 @@ def write_some_data(context, filepath, bApplyTranforms):
     
     output.write("static ATTR attribute_%s[] = {\n" % mesh.name)
     for i , fc in enumerate(mesh.polygons):
-            output.write("ATTRIBUTE(Dual_Plane, SORT_CEN, No_Texture, C_RGB( 0,  0, 31), No_Gouraud, MESHoff, sprPolygon, No_Option),\n")
+            output.write("ATTRIBUTE(Dual_Plane, SORT_CEN, No_Texture, C_RGB( %d,  %d, %d), No_Gouraud, MESHoff, sprPolygon, No_Option),\n" %  (colorConv(objContext.material_slots[fc.material_index].material.diffuse_color[0]) , colorConv(objContext.material_slots[fc.material_index].material.diffuse_color[1]) , colorConv(objContext.material_slots[fc.material_index].material.diffuse_color[2])) )
     output.write("\n};\n")
     
     output.write("XPDATA XDATA_S3D[] = { \n")
@@ -74,6 +75,12 @@ def write_some_data(context, filepath, bApplyTranforms):
     
     return {'FINISHED'}
 
+def colorConv(input):
+    # max val : 31
+    if(input > 1.0):
+        return 1.0
+    else:
+        return (input*31)
 
 # ExportHelper is a helper class, defines filename and
 # invoke() function which calls the file selector.

@@ -30,50 +30,53 @@ def write_some_data(context, filepath, bApplyTranforms):
     mesh = context.active_object.data
     objContext = context.object
     
-    output.write("static const fix16_vec3_t point_%s[] = {\n" % mesh.name)
+    output.write("static const fix16_vec3_t points_%s[] = {\n" % mesh.name)
     for k,v in enumerate(mesh.vertices):
-        output.write("FIX16_VEC3_INITIALIZER(%.2f,%.2f,%.2f) \t \t /* %d */" % (v.co[0], v.co[1], v.co[2], k))
+        output.write("\tFIX16_VEC3_INITIALIZER(%.2f,%.2f,%.2f)" % (v.co[0], v.co[1], v.co[2]))
         if(k+1 < len(mesh.vertices)):
             output.write(",\n")
-    output.write("\n }; \n")
+    output.write("\n }; \n \n")
 
     output.write("static const fix16_vec3_t normals_%s[] = {\n" % mesh.name)
     for k,n in enumerate(mesh.vertex_normals):
-        output.write("FIX16_VEC3_INITIALIZER(%.2f,%.2f,%.2f) \t \t /* %d */" % (n.vector[0], n.vector[1], n.vector[2], k))
+        output.write("\tFIX16_VEC3_INITIALIZER(%.2f,%.2f,%.2f)" % (n.vector[0], n.vector[1], n.vector[2]))
         if(k+1 < len(mesh.vertices)):
             output.write(",\n")
-    output.write("\n }; \n")
+    output.write("\n }; \n \n")
 
 
-    output.write("static POLYGON polygon_%s[] = {\n" % mesh.name)    
+    output.write("static const polygon_t polygons_%s[] ={ \n" % mesh.name)    
     for i,fc in enumerate(mesh.polygons):
-        output.write("NORMAL(%.2f,%.2f,%.2f) ," % (fc.normal[0], fc.normal[1], fc.normal[2]))
-        output.write("VERTICES (")
+        output.write(" { FLAGS(SORT_TYPE_CENTER, PLANE_TYPE_SINGLE, true), ")
+        output.write("INDICES (")
         for j, vertex in enumerate(fc.vertices):
             output.write(" %d " %vertex)
             if (j+1 < len(fc.vertices)):
                 output.write(",")
-        output.write(") ")
+        output.write(") }")
         if (i+1 < len(mesh.polygons)):
             output.write(",\n")
-    output.write("}; \n")        
+    output.write("\n }; \n")        
     
-    output.write("static ATTR attribute_%s[] = {\n" % mesh.name)
+    
+    
+    
+    output.write("static const attribute_t attributes_%s[] = {\n" % mesh.name)
     for i , fc in enumerate(mesh.polygons):
-            output.write("ATTRIBUTE(Dual_Plane, SORT_CEN, No_Texture, C_RGB( %d,  %d, %d), No_Gouraud, MESHoff, sprPolygon, No_Option),\n" %  (colorConv(objContext.material_slots[fc.material_index].material.diffuse_color[0]) , colorConv(objContext.material_slots[fc.material_index].material.diffuse_color[1]) , colorConv(objContext.material_slots[fc.material_index].material.diffuse_color[2])) )
+            output.write("{ .draw_mode.color_mode = VDP1_CMDT_CM_RGB_32768,                                        .control.link_type = LINK_TYPE_JUMP_ASSIGN, .control.command = COMMAND_TYPE_DISTORTED_SPRITE, .texture_slot = 0 }" )
+            if (i+1 < len(mesh.polygons)):
+                output.write(",\n")
     output.write("\n};\n")
     
-    output.write("XPDATA XDATA_S3D[] = { \n")
-    output.write("\t { \n")
-    output.write("\t \t point_%s, \n" % mesh.name)
-    output.write("\t \t sizeof(point_%s) / sizeof(POINT), \n" % mesh.name)
-    output.write("\t \t polygon_%s, \n" % mesh.name)
-    output.write("\t \t sizeof(polygon_%s) / sizeof(POLYGON), \n " % mesh.name)
-    output.write("\t \t attribute_%s, \n"% mesh.name)
-    output.write("\t \t NULL \n")
-    output.write("\t } \n")
-    output.write("}; ")
-    output.write("\n uint32_t XPDATA_S3D_COUNT = 1;")
+
+    output.write("const mesh_t mesh_cube = {\n")
+    output.write("\t \t .points \t = points_%s, \n" % mesh.name)
+    output.write("\t \t .points_count \t = %d, \n" % len(mesh.vertices))
+    output.write("\t \t .polygons \t = polygons_%s, \n" % mesh.name)
+    output.write("\t \t .normals \t = normals_%s, \n" % mesh.name)
+    output.write("\t \t .attributes \t = attributes_%s, \n"% mesh.name)
+    output.write("\t \t .polygons_count = %d" % len(mesh.polygons))
+    output.write("\n};")
 
     output.close()
     

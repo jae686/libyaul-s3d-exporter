@@ -24,18 +24,26 @@ def write_some_data(context, filepath, bApplyTranforms):
 
 
     
-    output.write("#include <sega3d.h> \n")
-
+    output.write("#include \"mesh.h\" \n \n")
+    
 
     mesh = context.active_object.data
     objContext = context.object
     
-    output.write("static POINT point_%s[] = {\n" % mesh.name)
+    output.write("static const fix16_vec3_t point_%s[] = {\n" % mesh.name)
     for k,v in enumerate(mesh.vertices):
-        output.write("POStoFIXED(%.2f,%.2f,%.2f) \t \t /* %d */" % (v.co[0], v.co[1], v.co[2], k))
+        output.write("FIX16_VEC3_INITIALIZER(%.2f,%.2f,%.2f) \t \t /* %d */" % (v.co[0], v.co[1], v.co[2], k))
         if(k+1 < len(mesh.vertices)):
             output.write(",\n")
     output.write("\n }; \n")
+
+    output.write("static const fix16_vec3_t normals_%s[] = {\n" % mesh.name)
+    for k,n in enumerate(mesh.vertex_normals):
+        output.write("FIX16_VEC3_INITIALIZER(%.2f,%.2f,%.2f) \t \t /* %d */" % (n.vector[0], n.vector[1], n.vector[2], k))
+        if(k+1 < len(mesh.vertices)):
+            output.write(",\n")
+    output.write("\n }; \n")
+
 
     output.write("static POLYGON polygon_%s[] = {\n" % mesh.name)    
     for i,fc in enumerate(mesh.polygons):

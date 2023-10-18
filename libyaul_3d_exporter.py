@@ -45,12 +45,16 @@ def write_some_data(context, filepath, bApplyTranforms):
     output.write("\n }; \n \n")
 
 
+    # if we only have 3 indices, duplicate the past one
     output.write("static const polygon_t polygons_%s[] ={ \n" % mesh.name)    
     for i,fc in enumerate(mesh.polygons):
         output.write(" { FLAGS(SORT_TYPE_CENTER, PLANE_TYPE_SINGLE, true), ")
         output.write("INDICES (")
         for j, vertex in enumerate(fc.vertices):
-            output.write(" %d " %vertex)
+            output.write(" %d " % (vertex))
+            if (len(fc.vertices) == 3 and j == 2 ):
+                #if there is only 3 indices, duplicate the last one
+                output.write(", %d " %vertex)
             if (j+1 < len(fc.vertices)):
                 output.write(",")
         output.write(") }")
@@ -69,7 +73,7 @@ def write_some_data(context, filepath, bApplyTranforms):
     output.write("\n};\n")
     
 
-    output.write("const mesh_t mesh_cube = {\n")
+    output.write("const mesh_t %s = {\n" % mesh.name)
     output.write("\t \t .points \t = points_%s, \n" % mesh.name)
     output.write("\t \t .points_count \t = %d, \n" % len(mesh.vertices))
     output.write("\t \t .polygons \t = polygons_%s, \n" % mesh.name)
@@ -106,7 +110,7 @@ class ExportSomeData(Operator, ExportHelper):
     bl_label = "Export Some Data"
 
     # ExportHelper mixin class uses this
-    filename_ext = ".s3d.c"
+    filename_ext = ".c"
 
     filter_glob: StringProperty(
         default="*.s3d.c",

@@ -9,7 +9,7 @@ import bpy
 # Author : Jaerder Sousa <jaerder@videmogroup.org>
 #
 
-def write_some_data(context, filepath, bApplyTranforms):
+def write_some_data(context, filepath, bApplyTranforms, Eattributes):
     output=open(filepath,"w")
     vertice_list = [] #lista de vertices
     vertices_indices = []
@@ -22,8 +22,13 @@ def write_some_data(context, filepath, bApplyTranforms):
             vert.co = matrix @ vert.co
         obj.matrix_world.identity()
 
-
+    print("teste consola")
+    print(Eattributes)
     
+    if Eattributes == 'TEXTURED' : 
+        attr = "{ .draw_mode.color_mode = VDP1_CMDT_CM_RGB_32768,  .control.link_type = LINK_TYPE_JUMP_ASSIGN, .control.command = COMMAND_TYPE_DISTORTED_SPRITE, .texture_slot = 0 }"
+    else :
+        attr = "{ .palette_data.base_color = COLOR1, .draw_mode.raw = 0x00C0 ,  .control.link_type = LINK_TYPE_JUMP_ASSIGN, .control.command = COMMAND_TYPE_POLYLINE, .texture_slot = 0 }"
     output.write("#include \"mesh.h\" \n \n")
     
 
@@ -67,7 +72,7 @@ def write_some_data(context, filepath, bApplyTranforms):
     
     output.write("static const attribute_t attributes_%s[] = {\n" % mesh.name)
     for i , fc in enumerate(mesh.polygons):
-            output.write("{ .draw_mode.color_mode = VDP1_CMDT_CM_RGB_32768,                                        .control.link_type = LINK_TYPE_JUMP_ASSIGN, .control.command = COMMAND_TYPE_DISTORTED_SPRITE, .texture_slot = 0 }" )
+            output.write(attr)
             if (i+1 < len(mesh.polygons)):
                 output.write(",\n")
     output.write("\n};\n")
@@ -113,7 +118,7 @@ class ExportSomeData(Operator, ExportHelper):
     filename_ext = ".c"
 
     filter_glob: StringProperty(
-        default="*.s3d.c",
+        default="*.c",
         options={'HIDDEN'},
         maxlen=255,  # Max internal buffer length, longer would be clamped.
     )
@@ -126,23 +131,23 @@ class ExportSomeData(Operator, ExportHelper):
         default=True,
     )
 
-    type: EnumProperty(
-        name="Example Enum",
-        description="Choose between two items",
+    attributes: EnumProperty(
+        name="How to render the mesh",
+        description="Select Attributes",
         items=(
-            ('OPT_A', "First Option", "Description one"),
-            ('OPT_B', "Second Option", "Description two"),
+            ('TEXTURED', "Textured", "Description one"),
+            ('WIREFRAME', "Wireframe", "Description two"),
         ),
-        default='OPT_A',
+        default='WIREFRAME',
     )
 
     def execute(self, context):
-        return write_some_data(context, self.filepath, self.use_setting)
+        return write_some_data(context, self.filepath, self.use_setting, self.attributes)
 
 
 # Only needed if you want to add into a dynamic menu
 def menu_func_export(self, context):
-    self.layout.operator(ExportSomeData.bl_idname, text="VI TIC80 3D mesh")
+    self.layout.operator(ExportSomeData.bl_idname, text="VI LIBYAUL 3D mesh")
 
 
 def register():
